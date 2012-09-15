@@ -5,22 +5,3 @@ REQUIREMENTS
 <-> Temperature
 <-> Humidity
 <-> Tide height
-
-
-fetch data from the API:
-
-var url = "http://api.wunderground.com/api/"
-		+API_KEY
-		+"/conditions/tide/hourly10day/q/"
-		+SEARCH_LOCATION
-		+".json";
-<o:p> </o:p>
-$.ajax
-({
-	url: url,
-	dataType: "jsonp",
-	success: function(weatherData) 
-	{
-		// use the JSON data here for your visualization
-	}
-});
