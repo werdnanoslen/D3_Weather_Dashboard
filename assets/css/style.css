@@ -1,0 +1,110 @@
+@font-face
+{
+    font-family: OpenSans-Light;
+    src: url(../fonts/OpenSans-Light.ttf);
+}
+
+html
+{
+    margin: 0 auto;
+    padding: 0;
+    background-color: #130f30;
+}
+body
+{
+    margin: 30px auto;
+    padding: 0;
+    width: 960px;
+    text-align: center;
+    font-size: 100%;
+    font-family: OpenSans-Light, sans-serif;
+    color: #f0f0f0;
+}
+
+.header
+{
+    padding-bottom: 2%;
+    border-bottom: 1px solid #aaaaaa;
+}
+.header h1
+{
+    display: inline;
+    margin-right: 1%;
+}
+.header input[type=text]
+{
+    font-size: 200%;
+    color: inherit;
+    text-align: center;
+    background-color: inherit;
+    width: 25%;
+    border: 0px;
+    border-bottom: 1px solid #B6B6FF;
+    border-radius: 20px;
+    margin-bottom: 2%;
+}
+.header input::-webkit-input-placeholder
+{
+    color: #aaaaaa;
+}
+.header input:-moz-placeholder
+{
+    color: #aaaaaa;
+}
+.header input:-ms-input-placeholder
+{
+    color: #aaaaaa;
+}
+.header a.button
+{
+    font-size: 150%;
+    font-weight: bold;
+    padding: 0 1%;
+    margin: 1%;
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+    background-color: inherit;
+    color: inherit;
+}
+.header a.button:hover, .header a.buttonSelected
+{
+    cursor: pointer;
+    color: #130f30;
+    background-color: #f0f0f0;
+}
+
+.weather
+{
+    margin-top: 2%;
+}
+
+.weatherbox
+{
+    margin-bottom: 2%;
+}
+
+.weatherbox h2
+{
+	color: #aaaaaa;
+    width: 4%;
+    vertical-align: top;
+	text-align: right;
+    display: inline-block;
+	margin: 0;
+	margin-top: 3%;
+    -webkit-transform: rotate(90deg); 
+    -moz-transform: rotate(90deg);
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+}
+
+.weathergraph
+{
+    display: inline-block;
+    vertical-align: middle;
+	
+	min-height: 350px;
+	min-width: 700px;
+	border-left: 1px solid #888888;
+	border-radius: 20px;
+}
+
