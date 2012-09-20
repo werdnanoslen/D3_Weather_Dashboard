@@ -33,9 +33,9 @@ function setDay($newDayEl)
 {
     $($dayEl).removeClass("buttonSelected"); //clear selected button
     $dayEl = $($newDayEl); //set new selected button
-    day = $dayEl.text(); //how do I capture dates?
+	day = $dayEl.attr('title'); //starting index for arrays in updateVals()
     $dayEl.addClass("buttonSelected"); //display button selection
-    getWeatherReport();
+	updateVals();
 }
 
 function getWeatherReport()
@@ -51,10 +51,6 @@ function getWeatherReport()
 			alert(city);
         }
     });*/
-	
-	var newCity = $.getJSON("http://autocomplete.wunderground.com/aq?query="+city);
-	document.write(JSON.stringify(newCity));
-	
 
     var url = "http://api.wunderground.com/api/"
         +API_KEY
@@ -68,14 +64,25 @@ function getWeatherReport()
         success: function(weatherData) 
         {
             weatherReport = weatherData;
-            updateUI();
+            updateVals();
         }
     });
 }
 
-function updateUI()
+function updateVals()
 {
-    //alert(weatherReport['hourly_forecast'][0]['temp']['metric']);
-    //alert(weatherReport['FCTTIME']['pretty']);
+	var currentHour = parseInt(weatherReport['hourly_forecast'][0]['FCTTIME']['hour_padded']);
+	var temperatures = []; //final length should be 72 = 24*3
+	for (i=0; i<72; ++i)
+	{
+		if (i<currentHour)
+		{
+			temperatures[i] = -1; //no value
+		}
+		else 
+		{
+			temperatures[i] = weatherReport['hourly_forecast'][i-currentHour]['temp']['english'];
+		}
+	}
 }
 
