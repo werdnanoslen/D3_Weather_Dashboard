@@ -6,6 +6,8 @@ var day;
 var $dayEl;
 var inputTimer;
 var weatherReport;
+var temperature;
+var humidity;
 
 window.onload = initialize;
 
@@ -33,9 +35,9 @@ function setDay($newDayEl)
 {
     $($dayEl).removeClass("buttonSelected"); //clear selected button
     $dayEl = $($newDayEl); //set new selected button
-	day = $dayEl.attr('title'); //starting index for arrays in updateVals()
+	day = parseInt($dayEl.attr('title')); //starting index for arrays in updateVals()
     $dayEl.addClass("buttonSelected"); //display button selection
-	updateVals();
+	getValsByDay();
 }
 
 function getWeatherReport()
@@ -71,18 +73,35 @@ function getWeatherReport()
 
 function updateVals()
 {
-	var currentHour = parseInt(weatherReport['hourly_forecast'][0]['FCTTIME']['hour_padded']);
-	var temperatures = []; //final length should be 72 = 24*3
+	currentHour = parseInt(weatherReport['hourly_forecast'][0]['FCTTIME']['hour_padded']);
+	temperature = []; //final length should be 72 = 24*3
+	humidity = [];
 	for (i=0; i<72; ++i)
 	{
-		if (i<currentHour)
+		if (i<currentHour) //no value for hours up to now
 		{
-			temperatures[i] = -1; //no value
+			temperature[i] = -1;
+			humidity[i] = -1;
+			tide[i] = -1;
 		}
 		else 
 		{
-			temperatures[i] = weatherReport['hourly_forecast'][i-currentHour]['temp']['english'];
+			temperature[i] = weatherReport['hourly_forecast'][i-currentHour]['temp']['english'];
+			humidity[i] = weatherReport['hourly_forecast'][i-currentHour]['humidity'];
 		}
 	}
+	getValsByDay();
 }
 
+function getValsByDay()
+{
+	newTemperature = "";
+	newHumidity = "";
+	for (i=day; i<(day+24); ++i)
+	{
+		newTemperature += temperature[i]+", ";
+		newHumidity += humidity[i]+", ";
+	}
+	$('#temperatureGraph').text(newTemperature);
+	$('#humidityGraph').text(newHumidity);
+}
