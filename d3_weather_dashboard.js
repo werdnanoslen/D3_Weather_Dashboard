@@ -159,15 +159,37 @@ function drawTemperature()
 		append("svg:svg").
 		attr("width", width).
 		attr("height", height);
-	barTemperature.selectAll("rect").
+	barTemperature.selectAll("circle").
 		data(data).
 		enter().
-		append("svg:rect").
+		append("svg:circle").
 		attr("x", function(datum, index) { return x(index); }).
 		attr("y", function(datum) { return height - y(datum.temperature); }).
-		attr("height", 5).
-		attr("width", 5).
+		attr("height", 30).
+		attr("width", 30).
 		attr("fill", "#2d578b");
+	barTemperature.selectAll("text").
+		data(data).
+		enter().
+		append("svg:text").
+		attr("x", function(datum, index) { return x(index) + barWidth; }).
+		attr("y", function(datum) { return height - y(datum.temperature); }).
+		attr("dx", -barWidth/2).
+		attr("dy", "1.2em").
+		attr("text-anchor", "middle").
+		text(function(datum) { return datum.temperature;}).
+		attr("fill", "white");
+	barTemperature.selectAll("text").
+		data(data).
+		enter().
+		append("svg:text").
+		attr("x", function(datum, index) { return x(index) + barWidth; }).
+		attr("y", function(datum) { return height - y(datum.temperature); }).
+		attr("dx", -barWidth/2).
+		attr("dy", "1.2em").
+		attr("text-anchor", "middle").
+		text(function(datum) { return datum.temperature;}).
+		attr("fill", "white");
 }
 
 function drawHumidity()
@@ -192,19 +214,41 @@ function drawHumidity()
 	
 	if(barHumidity !== undefined) barHumidity.remove();
 	barHumidity = d3.select("#humidityGraph").
-	  append("svg:svg").
-	  attr("width", width).
-	  attr("height", height);
+		append("svg:svg").
+		attr("width", width).
+		attr("height", height);
 
 	barHumidity.selectAll("rect").
-	  data(data).
-	  enter().
-	  append("svg:rect").
-	  attr("x", function(datum, index) { return x(index); }).
-	  attr("y", function(datum) { return height - y(datum.humidity); }).
-	  attr("height", function(datum) { return y(datum.humidity); }).
-	  attr("width", barWidth).
-	  attr("fill", "#2d578b");
+		data(data).
+		enter().
+		append("svg:rect").
+		attr("x", function(datum, index) { return x(index); }).
+		attr("y", function(datum) { return height - y(datum.humidity); }).
+		attr("height", function(datum) { return y(datum.humidity); }).
+		attr("width", barWidth).
+		attr("fill", "#2d578b");
+	barHumidity.selectAll("text").
+		data(data).
+		enter().
+		append("svg:text").
+		attr("x", function(datum, index) { return x(index) + barWidth; }).
+		attr("y", function(datum) { return height - y(datum.humidity); }).
+		attr("dx", -barWidth/2).
+		attr("dy", "1.2em").
+		attr("text-anchor", "middle").
+		text(function(datum) { return datum.humidity;}).
+		attr("fill", "white");
+	barHumidity.selectAll("text").
+		data(data).
+		enter().
+		append("svg:text").
+		attr("x", function(datum, index) { return x(index) + barWidth; }).
+		attr("y", function(datum) { return height - y(datum.humidity); }).
+		attr("dx", -barWidth/2).
+		attr("dy", "1.2em").
+		attr("text-anchor", "middle").
+		text(function(datum) { return datum.humidity;}).
+		attr("fill", "white");
 }
 
 function drawTide()
