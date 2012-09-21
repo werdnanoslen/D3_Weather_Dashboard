@@ -159,26 +159,6 @@ function drawTemperature()
 		append("svg:svg").
 		attr("width", width).
 		attr("height", height);
-	barTemperature.selectAll("circle").
-		data(data).
-		enter().
-		append("svg:circle").
-		attr("x", function(datum, index) { return x(index); }).
-		attr("y", function(datum) { return height - y(datum.temperature); }).
-		attr("height", 30).
-		attr("width", 30).
-		attr("fill", "#2d578b");
-	barTemperature.selectAll("text").
-		data(data).
-		enter().
-		append("svg:text").
-		attr("x", function(datum, index) { return x(index) + barWidth; }).
-		attr("y", function(datum) { return height - y(datum.temperature); }).
-		attr("dx", -barWidth/2).
-		attr("dy", "1.2em").
-		attr("text-anchor", "middle").
-		text(function(datum) { return datum.temperature;}).
-		attr("fill", "white");
 	barTemperature.selectAll("text").
 		data(data).
 		enter().
@@ -233,20 +213,10 @@ function drawHumidity()
 		append("svg:text").
 		attr("x", function(datum, index) { return x(index) + barWidth; }).
 		attr("y", function(datum) { return height - y(datum.humidity); }).
-		attr("dx", -barWidth/2).
+		attr("dx", -barWidth).
 		attr("dy", "1.2em").
 		attr("text-anchor", "middle").
-		text(function(datum) { return datum.humidity;}).
-		attr("fill", "white");
-	barHumidity.selectAll("text").
-		data(data).
-		enter().
-		append("svg:text").
-		attr("x", function(datum, index) { return x(index) + barWidth; }).
-		attr("y", function(datum) { return height - y(datum.humidity); }).
-		attr("dx", -barWidth/2).
-		attr("dy", "1.2em").
-		attr("text-anchor", "middle").
+		attr("font-size", "12px").
 		text(function(datum) { return datum.humidity;}).
 		attr("fill", "white");
 }
