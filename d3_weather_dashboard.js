@@ -151,7 +151,7 @@ function drawTemperature()
 		.domain([0, data.length])
 		.range([0, width]);
 	var y = d3.scale.linear()
-		.domain([0, d3.max(data, function(datum) { return datum.temperature; })])
+		.domain([0, 100])
 		.rangeRound([0, height]);
 	
 	if(barTemperature !== undefined) barTemperature.remove();
@@ -165,8 +165,8 @@ function drawTemperature()
 		append("svg:rect").
 		attr("x", function(datum, index) { return x(index); }).
 		attr("y", function(datum) { return height - y(datum.temperature); }).
-		attr("height", function(datum) { return y(datum.temperature); }).
-		attr("width", barWidth).
+		attr("height", 5).
+		attr("width", 5).
 		attr("fill", "#2d578b");
 }
 
@@ -182,9 +182,12 @@ function drawHumidity()
 	var width = (barWidth + 10) * data.length;
 	var height = 300;
 
-	var x = d3.scale.linear().domain([0, data.length]).range([0, width]);
-	var y = d3.scale.linear().domain([0, d3.max(data, function(datum) { return datum.humidity; })]).
-	  rangeRound([0, height]);
+	var x = d3.scale.linear()
+		.domain([0, data.length])
+		.range([0, width]);
+	var y = d3.scale.linear()
+		.domain([0, 100])
+		.rangeRound([0, height]);
 
 	
 	if(barHumidity !== undefined) barHumidity.remove();
