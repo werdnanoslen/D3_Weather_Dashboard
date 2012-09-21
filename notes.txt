@@ -1,7 +1,0 @@
-REQUIREMENTS
-<> Search bar for location (City)
-<> 3 days of data
-<> Visualize (unique, interactive):
-<-> Temperature
-<-> Humidity
-<-> Tide height
