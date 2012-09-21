@@ -6,9 +6,16 @@ var day;
 var $dayEl;
 var inputTimer;
 var weatherReport;
+var tideReport;
 var time;
 var temperature;
 var humidity;
+var tide;
+var tideReport;
+var tideToday;
+var tideTomorrow;
+var tide2Days;
+var dayTide;
 var dayTime;
 var dayTemperature;
 var dayHumidity;
@@ -51,7 +58,7 @@ function getWeatherReport()
 {
     /*$.ajax //couldn't get this to work :(
     ({
-        url: "http://autocomplete.wunderground.com/aq?query="+city, 
+        url: "http://autocomplete.wunderground.com/aq?query="+city,
         type: "GET",
         dataType: "jsonp",
         success: function(data)
@@ -91,8 +98,50 @@ function getWeatherReport()
 					humidity[i] = parseInt(weatherReport['hourly_forecast'][i-currentHour]['humidity']);
 				}
 			}
+			
 			getValsByDay();
 			draw();
+			
+			$.ajax
+			({
+				url: "http://api.wunderground.com/api/"
+					+API_KEY
+					+"/tide/q/"
+					+city
+					+".json",
+				dataType: "jsonp",
+				success: function(tideData) 
+				{
+					tideReport = tideData;
+					tideToday = [];
+					tideTomorrow = [];
+					tide2Days = [];
+					var counter = 0;
+					while (parseInt(tideReport['tide']['tideSummary'][counter]['date']['mday'])==(1+parseInt(weatherReport['hourly_forecast'][0]['FCTTIME']['mday'])))
+					{
+						tideToday.push(parseFloat(tideReport['tide']['tideSummary'][counter++]['data']['height']));
+					}
+					while (parseInt(tideReport['tide']['tideSummary'][0]['date']['mday'])==(2+parseInt(weatherReport['hourly_forecast'][0]['FCTTIME']['mday'])))
+					{
+						tideTomorrow.push(parseFloat(tideReport['tide']['tideSummary'][counter++]['data']['height']));
+					}
+					while (parseInt(tideReport['tide']['tideSummary'][0]['date']['mday'])==(3+parseInt(weatherReport['hourly_forecast'][0]['FCTTIME']['mday'])))
+					{
+						tide2Days.push(parseFloat(tideReport['tide']['tideSummary'][counter++]['data']['height']));
+					}
+					getValsByDay();
+					draw();
+				},
+				error: function(jqXHR, textStatus, errorThrown)
+				{
+					tideReport = null;
+					tideToday = [];
+					tideTomorrow = [];
+					tide2Days = [];
+					getValsByDay();
+					draw();
+				}
+			});
         },
 		error: function(jqXHR, textStatus, errorThrown)
 		{
@@ -124,8 +173,9 @@ function getValsByDay()
 		dayTemperature[j] = temperature[i];
 		dayHumidity[j] = humidity[i];
 	}
-	//$('#temperatureGraph').text(dayTemperature);
-	//$('#humidityGraph').text(dayHumidity);
+	if(day == 0) dayTide = tideToday;
+	else if (day == 12)	dayTide = tideTomorrow;
+	else dayTide = tide2Days;
 }
 
 function draw()
@@ -223,4 +273,48 @@ function drawHumidity()
 
 function drawTide()
 {
+	var data = [];
+	for (i=0; i<dayTide.length; ++i)
+	{
+		data[i] = {time: i, tide: dayTide[i]};
+	}
+	
+	var barWidth = 20;
+	var width = (barWidth + 10) * data.length;
+	var height = 300;
+	
+	var x = d3.scale.linear()
+		.domain([0, data.length])
+		.range([0, width]);
+	var y = d3.scale.linear()
+		.domain([d3.min(data, function(datum) { return datum.tide; }), d3.max(data, function(datum) { return datum.tide; })])
+		.rangeRound([0, height]);
+		
+	if(barTide !== undefined) barTide.remove();
+	barTide = d3.select("#tideGraph").
+		append("svg:svg").
+		attr("width", width).
+		attr("height", height);
+
+	barTide.selectAll("rect").
+		data(data).
+		enter().
+		append("svg:rect").
+		attr("x", function(datum, index) { return x(index); }).
+		attr("y", function(datum) { return height - y(datum.tide); }).
+		attr("height", function(datum) { return y(datum.tide); }).
+		attr("width", barWidth).
+		attr("fill", "#2d578b");
+	barTide.selectAll("text").
+		data(data).
+		enter().
+		append("svg:text").
+		attr("x", function(datum, index) { return x(index) + barWidth; }).
+		attr("y", function(datum) { return height - y(datum.tide); }).
+		attr("dx", -barWidth).
+		attr("dy", "1.2em").
+		attr("text-anchor", "middle").
+		attr("font-size", "12px").
+		text(function(datum) { return datum.tide;}).
+		attr("fill", "white");
 }
