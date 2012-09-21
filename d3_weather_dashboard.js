@@ -6,8 +6,14 @@ var day;
 var $dayEl;
 var inputTimer;
 var weatherReport;
+var time;
 var temperature;
 var humidity;
+var dayTime;
+var dayTemperature;
+var dayHumidity;
+var barTemperature;
+var barHumidity;
 
 window.onload = initialize;
 
@@ -38,11 +44,12 @@ function setDay($newDayEl)
 	day = parseInt($dayEl.attr('title')); //starting index for arrays in updateVals()
     $dayEl.addClass("buttonSelected"); //display button selection
 	getValsByDay();
+	draw();
 }
 
 function getWeatherReport()
 {
-    /*$.ajax
+    /*$.ajax //couldn't get this to work :(
     ({
         url: "http://autocomplete.wunderground.com/aq?query="+city, 
         type: "GET",
@@ -50,7 +57,6 @@ function getWeatherReport()
         success: function(data)
         {
             city = data[0]['l'];
-			alert(city);
         }
     });*/
 
@@ -66,42 +72,138 @@ function getWeatherReport()
         success: function(weatherData) 
         {
             weatherReport = weatherData;
-            updateVals();
-        }
+            currentHour = parseInt(weatherReport['hourly_forecast'][0]['FCTTIME']['hour_padded']);
+			time = []; //final length should be 72 = 24*3
+			temperature = [];
+			humidity = [];
+			for (i=0; i<72; ++i)
+			{
+				if (i<currentHour) //no value for hours up to now
+				{
+					time[i] = i;
+					temperature[i] = null;
+					humidity[i] = null;
+				}
+				else 
+				{
+					time[i] = parseInt(weatherReport['hourly_forecast'][i-currentHour]['FCTTIME']['hour_padded']);
+					temperature[i] = parseInt(weatherReport['hourly_forecast'][i-currentHour]['temp']['english']);
+					humidity[i] = parseInt(weatherReport['hourly_forecast'][i-currentHour]['humidity']);
+				}
+			}
+			getValsByDay();
+			draw();
+        },
+		error: function(jqXHR, textStatus, errorThrown)
+		{
+			weatherReport = null;
+            currentHour = null;
+			time = [];
+			temperature = [];
+			humidity = [];
+			for (i=0; i<72; ++i)
+			{
+				time[i] = null;
+				temperature[i] = null;
+				humidity[i] = null;
+			}
+			getValsByDay();
+			draw();
+		}
     });
-}
-
-function updateVals()
-{
-	currentHour = parseInt(weatherReport['hourly_forecast'][0]['FCTTIME']['hour_padded']);
-	temperature = []; //final length should be 72 = 24*3
-	humidity = [];
-	for (i=0; i<72; ++i)
-	{
-		if (i<currentHour) //no value for hours up to now
-		{
-			temperature[i] = -1;
-			humidity[i] = -1;
-			tide[i] = -1;
-		}
-		else 
-		{
-			temperature[i] = weatherReport['hourly_forecast'][i-currentHour]['temp']['english'];
-			humidity[i] = weatherReport['hourly_forecast'][i-currentHour]['humidity'];
-		}
-	}
-	getValsByDay();
 }
 
 function getValsByDay()
 {
-	newTemperature = "";
-	newHumidity = "";
-	for (i=day; i<(day+24); ++i)
+	dayTime = [];
+	dayTemperature = [];
+	dayHumidity = [];
+	for (i=day, j=0; i<(day+24); ++i, ++j)
 	{
-		newTemperature += temperature[i]+", ";
-		newHumidity += humidity[i]+", ";
+		dayTime[j] = time[i];
+		dayTemperature[j] = temperature[i];
+		dayHumidity[j] = humidity[i];
 	}
-	$('#temperatureGraph').text(newTemperature);
-	$('#humidityGraph').text(newHumidity);
+	//$('#temperatureGraph').text(dayTemperature);
+	//$('#humidityGraph').text(dayHumidity);
+}
+
+function draw()
+{
+	drawTemperature();
+	drawHumidity();
+	drawTide();
+}
+
+function drawTemperature()
+{
+	var data = [];
+	for (i=0; i<dayTime.length; ++i)
+	{
+		data[i] = {time: dayTime[i], temperature: dayTemperature[i]};
+	}
+	
+	var barWidth = 20;
+	var width = (barWidth + 10) * data.length;
+	var height = 300;
+
+	var x = d3.scale.linear()
+		.domain([0, data.length])
+		.range([0, width]);
+	var y = d3.scale.linear()
+		.domain([0, d3.max(data, function(datum) { return datum.temperature; })])
+		.rangeRound([0, height]);
+	
+	if(barTemperature !== undefined) barTemperature.remove();
+	barTemperature = d3.select("#temperatureGraph").
+		append("svg:svg").
+		attr("width", width).
+		attr("height", height);
+	barTemperature.selectAll("rect").
+		data(data).
+		enter().
+		append("svg:rect").
+		attr("x", function(datum, index) { return x(index); }).
+		attr("y", function(datum) { return height - y(datum.temperature); }).
+		attr("height", function(datum) { return y(datum.temperature); }).
+		attr("width", barWidth).
+		attr("fill", "#2d578b");
+}
+
+function drawHumidity()
+{
+	var data = [];
+	for (i=0; i<dayTime.length; ++i)
+	{
+		data[i] = {time: dayTime[i], humidity: dayHumidity[i]};
+	}
+	
+	var barWidth = 20;
+	var width = (barWidth + 10) * data.length;
+	var height = 300;
+
+	var x = d3.scale.linear().domain([0, data.length]).range([0, width]);
+	var y = d3.scale.linear().domain([0, d3.max(data, function(datum) { return datum.humidity; })]).
+	  rangeRound([0, height]);
+
+	
+	if(barHumidity !== undefined) barHumidity.remove();
+	barHumidity = d3.select("#humidityGraph").
+	  append("svg:svg").
+	  attr("width", width).
+	  attr("height", height);
+
+	barHumidity.selectAll("rect").
+	  data(data).
+	  enter().
+	  append("svg:rect").
+	  attr("x", function(datum, index) { return x(index); }).
+	  attr("y", function(datum) { return height - y(datum.humidity); }).
+	  attr("height", function(datum) { return y(datum.humidity); }).
+	  attr("width", barWidth).
+	  attr("fill", "#2d578b");
+}
+
+function drawTide()
+{
 }
